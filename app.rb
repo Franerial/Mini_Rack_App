@@ -9,10 +9,8 @@ class App
     result = TimeConverter.new(@request).call
     if result.success?
       @response = Rack::Response.new(result.body, 200)
-    elsif result.contain_unknown_params?
-      @response = Rack::Response.new(result.body, 400)
     else
-      @response = Rack::Response.new(result.body, 404)
+      @response = Rack::Response.new(result.body, 400)
     end
 
     @response.finish

@@ -1,24 +1,13 @@
 # frozen_string_literal: true
 
 class TimeConverter
-  AVAILABLE_PATH = "/time"
   ACCEPTABLE_FORMAT = %w[year month day hour minute second].freeze
-  TIME_CONVERT_FORMATS = {
-    "year" => "%Y",
-    "month" => "%m",
-    "day" => "%d",
-    "hour" => "%H",
-    "minute" => "%M",
-    "second" => "%S",
-  }.freeze
+  AVAILABLE_TIME_FORMATS = %w[%Y %m %d %H %M %S].freeze
+  TIME_CONVERT_FORMATS = Hash[ACCEPTABLE_FORMAT.zip AVAILABLE_TIME_FORMATS].freeze
 
   Result = Struct.new(:body) do
     def success?
       body.first.include? "-"
-    end
-
-    def contain_unknown_params?
-      body.first.include? "Unknown params"
     end
   end
 
@@ -27,19 +16,15 @@ class TimeConverter
   end
 
   def call
-    if valid_input_data? && acceptably?
-      Result.new([convert_user_format])
-    elsif contain_unknown_params?
-      Result.new(["Unknown params #{unknown_time_format}"])
-    else
-      Result.new(["Not found"])
-    end
+    return Result.new([convert_user_format]) if valid_input_data? && acceptably?
+    return Result.new(["Unknown time format #{unknown_time_format}"]) if contain_unknown_params?
+    Result.new(["Undefined params #{@request.params.keys}"])
   end
 
   private
 
   def valid_input_data?
-    @request.path_info == AVAILABLE_PATH && correct_param_name? && @request.get?
+    correct_param_name? && @request.get?
   end
 
   def contain_unknown_params?

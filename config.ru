@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'app'
+require_relative "app"
 
-use Rack::ContentType, 'text/plain'
-run App.new
+use Rack::ContentType, "text/plain"
+run Rack::URLMap.new({ "/time" => App.new })
